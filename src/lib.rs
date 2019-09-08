@@ -17,15 +17,34 @@ fn build_client() -> Result<reqwest::Client> {
 }
 
 /// Pulls the actual twtxt.txt file from the specified URL.
+///
+/// # Examples
+/// ```
+/// # use rustwtxt::*;
+/// let out = if let Ok(data) = pull_twtxt("https://some-url-here.ext/twtxt.txt") {
+///     data
+/// } else {
+///     String::new()
+/// };
+/// ```
 pub fn pull_twtxt(url: &str) -> Result<String> {
     let client = build_client()?;
     let res = client.get(url).send()?.text()?;
     Ok(res)
 }
 
-// You'll have to play with the trim offset here. Often there will be
-// unprintable characters, such as newlines, appended despite the output
-// being trim()-ed before return.
+/// This parses out the information in the "== Metadata ==" section of
+/// a given `twtxt.txt` file.
+/// You'll have to play with the trim offset here. Often there will be
+/// unprintable characters, such as newlines, appended despite the output
+/// being `trim()`-ed before return.
+///
+/// # Examples
+/// ```
+/// # use rustwtxt::*;
+/// let twtxt = pull_twtxt("https://example.org/twtxt.txt").unwrap();
+/// let out = parse_metadata(&twtxt, "nick", 1);
+/// ```
 pub fn parse_metadata(twtxt: &str, keyword: &str, trim: usize) -> String {
     if !twtxt.contains("== Metadata ==") || !twtxt.contains(keyword) {
         return String::new();
@@ -41,6 +60,16 @@ pub fn parse_metadata(twtxt: &str, keyword: &str, trim: usize) -> String {
     word.trim().into()
 }
 
+/// Pull the individual statuses from a remote `twtxt.txt` file into
+/// a `std::collections::BTreeMap`, with the dates parsed into a
+/// `chrono::DateTime<FixedOffset>`
+///
+/// # Examples
+/// ```
+///# use rustwtxt::*;
+/// let twtxt = pull_twtxt("https://example.org/twtxt.txt").unwrap();
+/// let status_map = get_statuses(&twtxt);
+/// ```
 pub fn get_statuses(twtxt: &str) -> BTreeMap<chrono::DateTime<FixedOffset>, String> {
     let mut map = BTreeMap::<chrono::DateTime<FixedOffset>, String>::new();
     let lines = twtxt.split("\n").collect::<Vec<&str>>();
