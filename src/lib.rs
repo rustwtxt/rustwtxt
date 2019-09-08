@@ -99,4 +99,16 @@ mod tests {
         eprintln!("{:#?}", res);
         assert!(res.len() > 1);
     }
+
+    #[test]
+    #[should_panic]
+    fn test_bad_url() {
+        pull_twtxt("https://example-some-fake-site-goes-here.com/some_fake_url.txt").unwrap();
+    }
+
+    #[test]
+    fn parse_bad_twtxt() {
+        let rhs = parse_metadata("SOMETHING GOES HERE", "url", 0);
+        assert_eq!(String::new(), rhs);
+    }
 }
