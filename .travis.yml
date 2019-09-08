@@ -1,0 +1,24 @@
+language: rust
+
+rust:
+  - nightly
+
+os: 
+  - linux
+
+dist: xenial
+
+addons:
+  apt:
+    packages:
+      - cmake
+      - gcc
+      - binutils-dev
+
+before_script:
+    - cargo install cargo-tarpaulin
+
+script:
+    - cargo build --verbose $CARGO_OPTIONS
+    - cargo tarpaulin --out Xml
+    - bash <(curl -s https://codecov.io/bash) -f lcov.info;
