@@ -20,13 +20,14 @@ pub fn metadata(twtxt: &str, keyword: &str, trim: usize) -> String {
         return String::new();
     }
 
-    let split = twtxt.split(keyword).collect::<Vec<&str>>();
-    let split = split[1];
-    let split = split.split("=").collect::<Vec<&str>>();
-    let split = split[1];
-    let split = split.split(" ").collect::<Vec<&str>>();
-    let word = split[1];
-    let word = word[..word.len() - trim].to_string();
+    let split_at_keyword = twtxt.split(keyword).collect::<Vec<&str>>();
+    let rhs_of_keyword = split_at_keyword[1];
+    let split_at_equals = rhs_of_keyword.split("=").collect::<Vec<&str>>();
+    let rhs_of_equals = split_at_equals[1];
+    let split_at_space = rhs_of_equals.split(" ").collect::<Vec<&str>>();
+    let word_untrimmed = split_at_space[1];
+    let word_len = word_untrimmed.len();
+    let word = word_untrimmed[..word_len - trim].to_string();
     word.trim().into()
 }
 
