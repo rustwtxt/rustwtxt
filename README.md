@@ -1,6 +1,7 @@
 # rustwtxt
 
 A library that makes it easier to interact with `twtxt` status files.
+Doesn't quite work yet. Feel free to help hack on it.
 
 ## Notes
 
