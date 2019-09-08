@@ -1,26 +1,17 @@
 language: rust
 
 rust:
-  - nightly
+  - stable
 
 os: 
   - linux
 
 dist: xenial
 
-addons:
-  apt:
-    packages:
-      - cmake
-      - gcc
-      - binutils-dev
-
 before_script:
-    - wget https://github.com/xd009642/tarpaulin/releases/download/0.8.6/cargo-tarpaulin-0.8.6-travis.tar.gz
-    - tar xzf cargo-tarpaulin-0.8.6-travis.tar.gz
-    - mv cargo-tarpaulin $HOME/.cargo/bin
+    - cargo install cargo-tarpaulin
 
 script:
-    - cargo tarpaulin --out Xml
-    - cargo build --verbose $CARGO_OPTIONS
+    - cargo build --verbose
+    - cargo tarpaulin --out Xml --verbose
     - bash <(curl -s https://codecov.io/bash)
