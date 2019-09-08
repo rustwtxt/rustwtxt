@@ -16,7 +16,7 @@ fn build_client() -> Result<reqwest::Client> {
     Ok(client)
 }
 
-/// Pulls the actual twtxt.txt file from the specified URL.
+/// Pulls the target twtxt.txt file from the specified URL.
 ///
 /// # Examples
 /// ```
