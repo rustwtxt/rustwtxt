@@ -114,6 +114,8 @@ mod tests {
         assert_eq!("gbmor", &user);
     }
 
+    // This passes `cargo test`, but `cargo tarpaulin` segfaults
+    #[ignore]
     #[test]
     fn test_get_url() {
         let res = pull_twtxt(TEST_URL).unwrap();
