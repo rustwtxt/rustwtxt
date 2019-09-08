@@ -15,10 +15,9 @@ addons:
       - gcc
       - binutils-dev
 
-before_script:
-    - cargo install cargo-tarpaulin
-
 script:
+    - curl -O https://github.com/xd009642/tarpaulin/releases/download/0.8.6/cargo-tarpaulin-0.8.6-travis.tar.gz
+    - tar xzvf cargo-tarpaulin-0.8.6-travis.tar.gz
     - cargo build --verbose $CARGO_OPTIONS
-    - cargo tarpaulin --out Xml
+    - ./cargo-tarpaulin --out Xml
     - bash <(curl -s https://codecov.io/bash)
