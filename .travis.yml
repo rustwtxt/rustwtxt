@@ -19,5 +19,5 @@ script:
     - wget https://github.com/xd009642/tarpaulin/releases/download/0.8.6/cargo-tarpaulin-0.8.6-travis.tar.gz
     - tar xzf cargo-tarpaulin-0.8.6-travis.tar.gz
     - cargo build --verbose $CARGO_OPTIONS
-    - ./cargo-tarpaulin --out Xml
+    - ./cargo-tarpaulin
     - bash <(curl -s https://codecov.io/bash)
