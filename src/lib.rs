@@ -111,4 +111,10 @@ mod tests {
         let rhs = parse_metadata("SOMETHING GOES HERE", "url", 0);
         assert_eq!(String::new(), rhs);
     }
+
+    #[test]
+    fn get_bad_statuses() {
+        let out = get_statuses("2019-04-50\tSOME STATUS");
+        assert!(out.len() < 1);
+    }
 }
