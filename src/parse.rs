@@ -68,7 +68,7 @@ mod tests {
     const TEST_URL: &str = "https://gbmor.dev/twtxt.txt";
 
     #[test]
-    fn test_get_username() {
+    fn get_username() {
         let res = crate::pull_twtxt(TEST_URL).unwrap();
         let user = metadata(&res, "nick", 1);
         assert_eq!("gbmor", &user);
@@ -77,17 +77,16 @@ mod tests {
     // This passes `cargo test`, but `cargo tarpaulin` segfaults
     #[ignore]
     #[test]
-    fn test_get_url() {
+    fn get_url() {
         let res = crate::pull_twtxt(TEST_URL).unwrap();
         let url = metadata(&res, "url", 4);
         assert_eq!(TEST_URL, &url);
     }
 
     #[test]
-    fn test_status_map() {
+    fn get_status_map() {
         let twtxt = crate::pull_twtxt(TEST_URL).unwrap();
         let res = statuses(&twtxt);
-        eprintln!("{:#?}", res);
         assert!(res.len() > 1);
     }
     #[test]

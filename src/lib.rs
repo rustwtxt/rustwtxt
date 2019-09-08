@@ -47,7 +47,6 @@ mod tests {
     #[test]
     fn test_pull_twtxt() {
         let res = pull_twtxt(TEST_URL).unwrap();
-        eprintln!("{}", res);
         assert!(res.contains("gbmor"));
     }
 
