@@ -11,10 +11,10 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 
 /// Holds statuses and metadata from a single `twtxt.txt` file.
 #[derive(Debug, Clone, Eq, PartialEq)]
-struct Twtxt {
-    nickname: String,
-    url: String,
-    tweets: BTreeMap<String, Tweet>,
+pub struct Twtxt {
+    pub nickname: String,
+    pub url: String,
+    pub tweets: BTreeMap<String, Tweet>,
 }
 
 impl Twtxt {
@@ -41,6 +41,9 @@ impl Twtxt {
             .collect::<Vec<&str>>()
             .iter()
             .for_each(|line| {
+                if line.starts_with("#") || line == &"" {
+                    return;
+                }
                 let tweet = Tweet::new(line);
                 tweets.insert(tweet.timestamp.clone(), tweet);
             });
@@ -55,11 +58,11 @@ impl Twtxt {
 
 /// Holds a single status.
 #[derive(Debug, Clone, Eq, PartialEq)]
-struct Tweet {
-    timestamp: String,
-    body: String,
-    mentions: Vec<String>,
-    tags: Vec<String>,
+pub struct Tweet {
+    pub timestamp: String,
+    pub body: String,
+    pub mentions: Vec<String>,
+    pub tags: Vec<String>,
 }
 
 impl Tweet {
@@ -81,7 +84,7 @@ impl Tweet {
             .map(|ding| {
                 let tmp = ding.as_str();
                 let tmp = tmp.split(" ").collect::<Vec<&str>>();
-                if tmp[0] == "" && tmp[1] != "" {
+                if tmp[0] == "" && tmp.len() > 1 {
                     return tmp[1].to_string();
                 }
                 tmp[0].to_string()
@@ -143,6 +146,20 @@ mod tests {
     use super::*;
 
     const TEST_URL: &str = "https://gbmor.dev/twtxt.txt";
+
+    #[test]
+    fn make_twtxt() {
+        let rhs = Twtxt::new(TEST_URL).unwrap();
+        let tweets = BTreeMap::new();
+        let lhs = Twtxt {
+            nickname: String::from("gbmor"),
+            url: String::from("https://gbmor.dev/twtxt.txt"),
+            tweets,
+        };
+        assert_eq!(lhs.nickname, rhs.nickname);
+        assert_eq!(lhs.url, rhs.url);
+        assert!(rhs.tweets.len() > 1);
+    }
 
     // This is causing cargo-tarpaulin to segfault, but
     // only in travis...
