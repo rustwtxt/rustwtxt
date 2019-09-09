@@ -12,13 +12,29 @@ type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 /// Holds statuses and metadata from a single `twtxt.txt` file.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Twtxt {
-    pub nickname: String,
-    pub url: String,
-    pub tweets: BTreeMap<String, Tweet>,
+    nickname: String,
+    url: String,
+    tweets: BTreeMap<String, Tweet>,
 }
 
 impl Twtxt {
-    fn new(url: &str) -> Option<Self> {
+    pub fn nick<'a>(&'a self) -> &'a str {
+        &self.nickname
+    }
+    pub fn url<'a>(&'a self) -> &'a str {
+        &self.url
+    }
+    pub fn tweet(&self, datestamp: &str) -> Option<&Tweet> {
+        if self.tweets.contains_key(datestamp) {
+            Some(&self.tweets[datestamp])
+        } else {
+            None
+        }
+    }
+    pub fn tweets(&self) -> &BTreeMap<String, Tweet> {
+        &self.tweets
+    }
+    pub fn from(url: &str) -> Option<Self> {
         let twtxt = if let Ok(val) = pull_twtxt(&url) {
             val
         } else {
@@ -44,7 +60,7 @@ impl Twtxt {
                 if line.starts_with("#") || line == &"" {
                     return;
                 }
-                let tweet = Tweet::new(line);
+                let tweet = Tweet::from_str(line);
                 tweets.insert(tweet.timestamp.clone(), tweet);
             });
 
@@ -59,14 +75,26 @@ impl Twtxt {
 /// Holds a single status.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Tweet {
-    pub timestamp: String,
-    pub body: String,
-    pub mentions: Vec<String>,
-    pub tags: Vec<String>,
+    timestamp: String,
+    body: String,
+    mentions: Vec<String>,
+    tags: Vec<String>,
 }
 
 impl Tweet {
-    fn new(tweet: &str) -> Self {
+    pub fn timestamp<'a>(&'a self) -> &'a str {
+        &self.timestamp
+    }
+    pub fn body<'a>(&'a self) -> &'a str {
+        &self.body
+    }
+    pub fn mentions(&self) -> Vec<String> {
+        self.mentions.clone()
+    }
+    pub fn tags(&self) -> Vec<String> {
+        self.tags.clone()
+    }
+    pub fn from_str(tweet: &str) -> Self {
         let split = tweet.split("\t").collect::<Vec<&str>>();
         let timestamp = split[0].to_string();
         let body = split[1].to_string();
@@ -148,14 +176,27 @@ mod tests {
     const TEST_URL: &str = "https://gbmor.dev/twtxt.txt";
 
     #[test]
+    fn the_structs() {
+        let twtxt = Twtxt::from(TEST_URL).unwrap();
+        assert_eq!("gbmor", twtxt.nick());
+        assert_eq!(TEST_URL, twtxt.url());
+        assert!(twtxt.tweets().len() > 1);
+
+        let (_, tweet) = twtxt.tweets().iter().next().unwrap();
+        assert!(tweet.body().len() > 1);
+        assert!(tweet.timestamp().len() > 1);
+        assert!(tweet.tags().len() < 1);
+    }
+
+    #[test]
     #[should_panic]
     fn bad_twtxt_url() {
-        Twtxt::new("https://example.com/twtxt.txt").unwrap();
+        Twtxt::from("https://example.com/twtxt.txt").unwrap();
     }
 
     #[test]
     fn make_twtxt() {
-        let rhs = Twtxt::new(TEST_URL).unwrap();
+        let rhs = Twtxt::from(TEST_URL).unwrap();
         let tweets = BTreeMap::new();
         let lhs = Twtxt {
             nickname: String::from("gbmor"),
