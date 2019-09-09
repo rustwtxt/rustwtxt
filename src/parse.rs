@@ -89,6 +89,33 @@ pub fn mentions(twtxt: &str) -> BTreeMap<String, String> {
     map
 }
 
+/// Takes a mention in the form of `@<nick https://example.com/twtxt.txt>`
+/// and reduces it to just the nickname.
+///
+/// # Examples
+/// ```
+/// # use rustwtxt;
+/// # use rustwtxt::parse;
+/// let status = "2019.09.09\tHey there, @<nickname https://example.com/twtxt.txt!>";
+/// let mention = parse::mention_to_nickname(status);
+/// assert_eq!(mention, "nickname");
+/// ```
+pub fn mention_to_nickname(line: &str) -> String {
+    let regex = Regex::new(r"[@<].*[>]+").unwrap();
+    let mention = if let Some(val) = regex.captures(line) {
+        match val.get(0) {
+            Some(n) => n.as_str(),
+            _ => return String::new(),
+        }
+    } else {
+        return String::new();
+    };
+
+    let mention_trimmed = mention[2..mention.len() - 1].to_string();
+    let mention_split = mention_trimmed.split(" ").collect::<Vec<&str>>();
+    mention_split[0].into()
+}
+
 /// Parses out `#tags` from each status, returning a `std::collections::BTreeMap<String, String>`
 /// with the timestamp as the key, and the tag as the status.
 pub fn tags(twtxt: &str) -> BTreeMap<String, String> {
@@ -138,6 +165,13 @@ mod tests {
     use super::*;
 
     const TEST_URL: &str = "https://gbmor.dev/twtxt.txt";
+
+    #[test]
+    fn turn_mentions_to_nick() {
+        let twtxt = "2019.09.09\tHey @<gbmor https://gbmor.dev/twtxt.txt>!";
+        let mention = mention_to_nickname(twtxt);
+        assert_eq!("gbmor", mention);
+    }
 
     #[test]
     fn get_tags() {
