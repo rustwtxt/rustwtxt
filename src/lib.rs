@@ -21,8 +21,8 @@ fn build_client() -> Result<reqwest::Client> {
 ///
 /// # Examples
 /// ```
-/// # use rustwtxt::*;
-/// let out = if let Ok(data) = pull_twtxt("https://some-url-here.ext/twtxt.txt") {
+/// # use rustwtxt;
+/// let out = if let Ok(data) = rustwtxt::pull_twtxt("https://some-url-here.ext/twtxt.txt") {
 ///               data
 ///           } else {
 ///               String::new()
@@ -34,11 +34,45 @@ pub fn pull_twtxt(url: &str) -> Result<String> {
     Ok(res)
 }
 
+/// Wrapper to apply a function to each line of a `twtxt.txt` file,
+/// returning the resulting lines as a `Vec<String>`
+///
+/// # Examples
+/// ```
+/// # use rustwtxt;
+/// let input = "test\ntest";
+/// let output = rustwtxt::mutate(input, |line| {
+///         line.chars()
+///             .map(|c| c.to_uppercase().to_string())
+///             .collect::<String>()
+///     });
+/// assert_eq!("TEST", output[0]);
+/// ```
+pub fn mutate(twtxt: &str, f: fn(&str) -> String) -> Vec<String> {
+    twtxt
+        .to_owned()
+        .lines()
+        .map(|line| f(line).to_string())
+        .collect::<Vec<String>>()
+        .clone()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     const TEST_URL: &str = "https://gbmor.dev/twtxt.txt";
+
+    #[test]
+    fn test_mutate() {
+        let input = "test";
+        let rhs = mutate(input, |line| {
+            line.chars()
+                .map(|c| c.to_uppercase().to_string())
+                .collect::<String>()
+        });
+        assert_eq!("TEST", rhs[0]);
+    }
 
     #[test]
     fn test_build_client() {

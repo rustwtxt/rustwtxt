@@ -9,9 +9,9 @@ type StringErr<'a, T> = std::result::Result<T, &'a str>;
 ///
 /// # Examples
 /// ```
-/// # use rustwtxt::*;
+/// # use rustwtxt;
 /// # use rustwtxt::parse;
-/// let twtxt = pull_twtxt("https://example.org/twtxt.txt").unwrap();
+/// let twtxt = rustwtxt::pull_twtxt("https://example.org/twtxt.txt").unwrap();
 /// let out = parse::metadata(&twtxt, "nick");
 /// ```
 pub fn metadata<'a, 'b>(twtxt: &'a str, keyword: &'b str) -> StringErr<'a, &'a str> {
