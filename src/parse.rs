@@ -1,5 +1,7 @@
 use std::collections::BTreeMap;
 
+use regex::Regex;
+
 /// This parses out the information in the "== Metadata ==" section of
 /// a given `twtxt.txt` file.
 /// You'll have to play with the trim offset here. Often there will be
@@ -58,10 +60,19 @@ pub fn mentions(twtxt: &str) -> BTreeMap<String, String> {
         if !v.contains("@<") {
             return;
         }
-        let split_at_opening = v.split("@<").collect::<Vec<&str>>();
-        let rhs_of_status = split_at_opening[1].split(">").collect::<Vec<&str>>();
-        let mention = rhs_of_status[0].to_string();
-        map.insert(k.to_string(), mention.to_string());
+
+        let regex = Regex::new(r"[@<].*[>]+").unwrap();
+        let out = if let Some(val) = regex.captures(v) {
+            match val.get(0) {
+                Some(n) => n.as_str(),
+                _ => return,
+            }
+        } else {
+            return;
+        };
+
+        let mention = out[2..out.len() - 1].to_string();
+        map.insert(k.to_string(), mention);
     });
     map
 }
