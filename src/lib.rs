@@ -1,20 +1,10 @@
 #![allow(dead_code)]
 
-use std::time::Duration;
-
-use reqwest;
+use http_req::request;
 
 pub mod parse;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
-
-fn build_client() -> Result<reqwest::Client> {
-    let client = reqwest::Client::builder()
-        .gzip(true)
-        .timeout(Duration::from_secs(10))
-        .build()?;
-    Ok(client)
-}
 
 /// Pulls the target twtxt.txt file from the specified URL.
 ///
@@ -28,8 +18,9 @@ fn build_client() -> Result<reqwest::Client> {
 ///           };
 /// ```
 pub fn pull_twtxt(url: &str) -> Result<String> {
-    let client = build_client()?;
-    let res = client.get(url).send()?.text()?;
+    let mut buf = Vec::new();
+    request::get(&url, &mut buf)?;
+    let res = std::str::from_utf8(&buf)?.into();
     Ok(res)
 }
 
@@ -76,11 +67,6 @@ mod tests {
         assert_eq!("TEST", rhs[0]);
     }
 
-    #[test]
-    fn test_build_client() {
-        // Right now, just panic if it returns Err()
-        build_client().unwrap();
-    }
     #[test]
     fn test_pull_twtxt() {
         let res = pull_twtxt(TEST_URL).unwrap();
