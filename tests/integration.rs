@@ -16,4 +16,12 @@ fn end_to_end() {
     let mention = "@<nick url>";
     let mention_nick = parse::mention_to_nickname(&mention).unwrap();
     assert_eq!("nick", mention_nick);
+
+    let twtxt = rustwtxt::Twtxt::from("https://gbmor.dev/twtxt.txt").unwrap();
+    let tweets = twtxt.tweets();
+
+    let (_, tweet) = tweets.iter().next().unwrap();
+    assert!(tweet.body().len() > 1);
+    assert!(twtxt.nick() == "gbmor");
+    assert!(twtxt.url() == "https://gbmor.dev/twtxt.txt");
 }
