@@ -148,6 +148,12 @@ mod tests {
     const TEST_URL: &str = "https://gbmor.dev/twtxt.txt";
 
     #[test]
+    #[should_panic]
+    fn bad_twtxt_url() {
+        Twtxt::new("https://example.com/twtxt.txt").unwrap();
+    }
+
+    #[test]
     fn make_twtxt() {
         let rhs = Twtxt::new(TEST_URL).unwrap();
         let tweets = BTreeMap::new();
