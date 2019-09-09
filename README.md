@@ -9,4 +9,4 @@ Not up to par yet. Feel free to help hack on it.
 The files are transmitted over `http`. 
 * For more information on `twtxt`:
   * [`buckket/twtxt`](https://github.com/buckket/twtxt)
-* This project is based on what I learned while making [`getwtxt`](https://github.com/getwtxt)
+* For a fully functional `twtxt` registry server: [`getwtxt`](https://github.com/getwtxt)
