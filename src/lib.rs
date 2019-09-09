@@ -22,10 +22,10 @@ fn build_client() -> Result<reqwest::Client> {
 /// ```
 /// # use rustwtxt::*;
 /// let out = if let Ok(data) = pull_twtxt("https://some-url-here.ext/twtxt.txt") {
-///     data
-/// } else {
-///     String::new()
-/// };
+///               data
+///           } else {
+///               String::new()
+///           };
 /// ```
 pub fn pull_twtxt(url: &str) -> Result<String> {
     let client = build_client()?;

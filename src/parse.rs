@@ -1,7 +1,5 @@
 use std::collections::BTreeMap;
 
-use chrono::prelude::*;
-
 /// This parses out the information in the "== Metadata ==" section of
 /// a given `twtxt.txt` file.
 /// You'll have to play with the trim offset here. Often there will be
@@ -32,18 +30,10 @@ pub fn metadata(twtxt: &str, keyword: &str, trim: usize) -> String {
 }
 
 /// Pull the individual statuses from a remote `twtxt.txt` file into
-/// a `std::collections::BTreeMap`, with the dates parsed into a
-/// `chrono::DateTime<FixedOffset>`
-///
-/// # Examples
-/// ```
-///# use rustwtxt::*;
-///# use rustwtxt::parse;
-/// let twtxt = pull_twtxt("https://example.org/twtxt.txt").unwrap();
-/// let status_map = parse::statuses(&twtxt);
-/// ```
-pub fn statuses(twtxt: &str) -> BTreeMap<chrono::DateTime<FixedOffset>, String> {
-    let mut map = BTreeMap::<chrono::DateTime<FixedOffset>, String>::new();
+/// a `std::collections::BTreeMap<String, String>`, The timestamp
+/// is the key while the status is the value.
+pub fn statuses(twtxt: &str) -> BTreeMap<String, String> {
+    let mut map = BTreeMap::new();
     let lines = twtxt.split("\n").collect::<Vec<&str>>();
     lines.iter().for_each(|line| {
         if line.starts_with("#") || line.len() < 1 {
@@ -51,12 +41,27 @@ pub fn statuses(twtxt: &str) -> BTreeMap<chrono::DateTime<FixedOffset>, String> 
         }
 
         let status = line.split("\t").collect::<Vec<&str>>();
-        let datestamp = if let Ok(val) = DateTime::parse_from_rfc3339(status[0]) {
-            val
-        } else {
+        let datestamp = status[0];
+        map.insert(datestamp.into(), status[1].into());
+    });
+    map
+}
+
+/// Parse the mentions out of a `twtxt.txt` file. Returns a
+/// `std::collections::BTreeMap<String, String>` with the
+/// timestamp of the status as the key and the mention as
+/// the associated value.
+pub fn mentions(twtxt: &str) -> BTreeMap<String, String> {
+    let statuses = statuses(&twtxt);
+    let mut map = BTreeMap::new();
+    statuses.iter().for_each(|(k, v)| {
+        if !v.contains("@<") {
             return;
-        };
-        map.insert(datestamp, status[1].into());
+        }
+        let split_at_opening = v.split("@<").collect::<Vec<&str>>();
+        let rhs_of_status = split_at_opening[1].split(">").collect::<Vec<&str>>();
+        let mention = rhs_of_status[0].to_string();
+        map.insert(k.to_string(), mention.to_string());
     });
     map
 }
@@ -66,6 +71,13 @@ mod tests {
     use super::*;
 
     const TEST_URL: &str = "https://gbmor.dev/twtxt.txt";
+
+    #[test]
+    fn get_mentions() {
+        let twtxt = crate::pull_twtxt(TEST_URL).unwrap();
+        let mention_map = mentions(&twtxt);
+        assert!(mention_map.len() > 1);
+    }
 
     #[test]
     fn get_username() {
@@ -97,7 +109,7 @@ mod tests {
 
     #[test]
     fn get_bad_statuses() {
-        let out = statuses("2019-04-50\tSOME STATUS");
-        assert!(out.len() < 1);
+        let status_map = statuses("");
+        assert!(status_map.len() < 1);
     }
 }
