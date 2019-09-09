@@ -45,7 +45,7 @@ pub fn metadata<'a, 'b>(twtxt: &'a str, keyword: &'b str) -> StringErr<'a, &'a s
 /// Pull the individual statuses from a remote `twtxt.txt` file into
 /// a `std::collections::BTreeMap<String, String>`, The timestamp
 /// is the key while the status is the value.
-pub fn statuses(twtxt: &str) -> BTreeMap<String, String> {
+pub fn statuses(twtxt: &str) -> Option<BTreeMap<String, String>> {
     let mut map = BTreeMap::new();
     let lines = twtxt.split("\n").collect::<Vec<&str>>();
     lines.iter().for_each(|line| {
@@ -57,15 +57,23 @@ pub fn statuses(twtxt: &str) -> BTreeMap<String, String> {
         let datestamp = status[0];
         map.insert(datestamp.into(), status[1].into());
     });
-    map
+
+    if map.len() == 0 {
+        return None;
+    }
+    Some(map)
 }
 
 /// Parse the mentions out of a `twtxt.txt` file. Returns a
 /// `std::collections::BTreeMap<String, String>` with the
 /// timestamp of the status as the key and the mention as
 /// the associated value.
-pub fn mentions(twtxt: &str) -> BTreeMap<String, String> {
-    let statuses = statuses(&twtxt);
+pub fn mentions(twtxt: &str) -> Option<BTreeMap<String, String>> {
+    let statuses = if let Some(val) = statuses(&twtxt) {
+        val
+    } else {
+        return None;
+    };
     let mut map = BTreeMap::new();
     statuses.iter().for_each(|(k, v)| {
         if !v.contains("@<") {
@@ -86,7 +94,10 @@ pub fn mentions(twtxt: &str) -> BTreeMap<String, String> {
         map.insert(k.to_string(), mention);
     });
 
-    map
+    if map.len() == 0 {
+        return None;
+    }
+    Some(map)
 }
 
 /// Takes a mention in the form of `@<nick https://example.com/twtxt.txt>`
@@ -100,26 +111,30 @@ pub fn mentions(twtxt: &str) -> BTreeMap<String, String> {
 /// let mention = parse::mention_to_nickname(status);
 /// assert_eq!(mention, "nickname");
 /// ```
-pub fn mention_to_nickname(line: &str) -> String {
+pub fn mention_to_nickname(line: &str) -> Option<String> {
     let regex = Regex::new(r"[@<].*[>]+").unwrap();
     let mention = if let Some(val) = regex.captures(line) {
         match val.get(0) {
             Some(n) => n.as_str(),
-            _ => return String::new(),
+            _ => return None,
         }
     } else {
-        return String::new();
+        return None;
     };
 
     let mention_trimmed = mention[2..mention.len() - 1].to_string();
     let mention_split = mention_trimmed.split(" ").collect::<Vec<&str>>();
-    mention_split[0].into()
+    Some(mention_split[0].into())
 }
 
 /// Parses out `#tags` from each status, returning a `std::collections::BTreeMap<String, String>`
 /// with the timestamp as the key, and the tag as the status.
-pub fn tags(twtxt: &str) -> BTreeMap<String, String> {
-    let statuses = statuses(&twtxt);
+pub fn tags(twtxt: &str) -> Option<BTreeMap<String, String>> {
+    let statuses = if let Some(val) = statuses(&twtxt) {
+        val
+    } else {
+        return None;
+    };
     let mut map = BTreeMap::new();
     statuses.iter().for_each(|(k, v)| {
         if !v.contains("#") {
@@ -157,7 +172,10 @@ pub fn tags(twtxt: &str) -> BTreeMap<String, String> {
         map.insert(k.to_string(), tag_group[..tag_group.len() - 1].to_string());
     });
 
-    map
+    if map.len() == 0 {
+        return None;
+    }
+    Some(map)
 }
 
 #[cfg(test)]
@@ -169,22 +187,22 @@ mod tests {
     #[test]
     fn turn_mentions_to_nick() {
         let twtxt = "2019.09.09\tHey @<gbmor https://gbmor.dev/twtxt.txt>!";
-        let mention = mention_to_nickname(twtxt);
+        let mention = mention_to_nickname(twtxt).unwrap();
         assert_eq!("gbmor", mention);
     }
 
     #[test]
     fn get_tags() {
-        let tag_map = tags("test\t#test");
+        let tag_map = tags("test\t#test").unwrap();
         assert!("#test" == &tag_map["test"]);
 
-        let tag_map = tags("test\tsome other #test here");
+        let tag_map = tags("test\tsome other #test here").unwrap();
         assert!("#test" == &tag_map["test"]);
 
-        let tag_map = tags("test\tsome other #test");
+        let tag_map = tags("test\tsome other #test").unwrap();
         assert!("#test" == &tag_map["test"]);
 
-        let tag_map = tags("test\tsome #test goes #here");
+        let tag_map = tags("test\tsome #test goes #here").unwrap();
         assert!("#test #here" == &tag_map["test"]);
     }
 
@@ -203,7 +221,7 @@ mod tests {
     #[test]
     fn get_mentions() {
         let twtxt = crate::pull_twtxt(TEST_URL).unwrap();
-        let mention_map = mentions(&twtxt);
+        let mention_map = mentions(&twtxt).unwrap();
         assert!(mention_map.len() > 1);
     }
 
@@ -226,7 +244,7 @@ mod tests {
     #[test]
     fn get_status_map() {
         let twtxt = crate::pull_twtxt(TEST_URL).unwrap();
-        let res = statuses(&twtxt);
+        let res = statuses(&twtxt).unwrap();
         assert!(res.len() > 1);
     }
     #[test]
@@ -236,8 +254,8 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
     fn get_bad_statuses() {
-        let status_map = statuses("");
-        assert!(status_map.len() < 1);
+        statuses("").unwrap();
     }
 }

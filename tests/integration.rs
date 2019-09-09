@@ -7,6 +7,13 @@ fn end_to_end() {
     let user = parse::metadata(&twtxt, "nick").unwrap();
     assert_eq!(user, "gbmor");
 
-    let statuses = parse::statuses(&twtxt);
+    let statuses = parse::statuses(&twtxt).unwrap();
     assert!(statuses.len() > 1);
+
+    let mentions = parse::mentions(&twtxt).unwrap();
+    assert!(mentions.len() > 1);
+
+    let mention = "@<nick url>";
+    let mention_nick = parse::mention_to_nickname(&mention).unwrap();
+    assert_eq!("nick", mention_nick);
 }
