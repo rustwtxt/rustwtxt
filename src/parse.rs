@@ -89,6 +89,8 @@ pub fn mentions(twtxt: &str) -> BTreeMap<String, String> {
     map
 }
 
+/// Parses out `#tags` from each status, returning a `std::collections::BTreeMap<String, String>`
+/// with the timestamp as the key, and the tag as the status.
 pub fn tags(twtxt: &str) -> BTreeMap<String, String> {
     let statuses = statuses(&twtxt);
     let mut map = BTreeMap::new();
@@ -97,24 +99,35 @@ pub fn tags(twtxt: &str) -> BTreeMap<String, String> {
             return;
         }
 
-        let regex = Regex::new(r"(^|\s)?[#].*").unwrap();
-        let tag = if let Some(val) = regex.captures(v) {
-            match val.get(0) {
-                Some(n) => n.as_str(),
-                _ => return,
-            }
-        } else {
-            return;
-        };
+        let regex = Regex::new(r"(^|\s)#[^\s]+").unwrap();
+        let tag: Vec<(String, String)> = regex
+            .find_iter(v)
+            .map(|ding| (k.clone(), ding.as_str().to_string()))
+            .collect();
 
-        let tag = tag.split(" ").collect::<Vec<&str>>();
-        let tag = if tag.len() > 1 {
-            tag[1].to_string()
-        } else {
-            tag[0].to_string()
-        };
+        let tags: Vec<(String, String)> = tag
+            .iter()
+            .map(|(k, v)| {
+                let v = v
+                    .chars()
+                    .map(|c| {
+                        if c.is_whitespace() {
+                            return "".into();
+                        }
+                        c.to_string()
+                    })
+                    .collect::<String>();
+                (k.clone(), v)
+            })
+            .collect();
 
-        map.insert(k.to_string(), tag.into());
+        let mut tag_group = String::new();
+        tags.iter().for_each(|(_, v)| {
+            tag_group.push_str(v);
+            tag_group.push_str(" ");
+        });
+
+        map.insert(k.to_string(), tag_group[..tag_group.len() - 1].to_string());
     });
 
     map
@@ -136,6 +149,9 @@ mod tests {
 
         let tag_map = tags("test\tsome other #test");
         assert!("#test" == &tag_map["test"]);
+
+        let tag_map = tags("test\tsome #test goes #here");
+        assert!("#test #here" == &tag_map["test"]);
     }
 
     #[test]
