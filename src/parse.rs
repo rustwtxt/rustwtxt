@@ -1,3 +1,6 @@
+//! Lower-level parsing functions for when you don't want to use
+//! the provided `Twtxt` and `Tweet` objects.
+
 use std::collections::BTreeMap;
 
 use regex::Regex;
@@ -42,7 +45,7 @@ pub fn metadata<'a, 'b>(twtxt: &'a str, keyword: &'b str) -> StringErr<'a, &'a s
     Ok(keyword_match)
 }
 
-/// Pull the individual statuses from a remote `twtxt.txt` file into
+/// Pull the individual tweets from a remote `twtxt.txt` file into
 /// a `std::collections::BTreeMap<String, String>`, The timestamp
 /// is the key while the status is the value.
 pub fn statuses(twtxt: &str) -> Option<BTreeMap<String, String>> {
@@ -66,7 +69,7 @@ pub fn statuses(twtxt: &str) -> Option<BTreeMap<String, String>> {
 
 /// Parse the mentions out of a `twtxt.txt` file. Returns a
 /// `std::collections::BTreeMap<String, String>` with the
-/// timestamp of the status as the key and the mention as
+/// timestamp of the tweet as the key and the mention as
 /// the associated value.
 pub fn mentions(twtxt: &str) -> Option<BTreeMap<String, String>> {
     let statuses = if let Some(val) = statuses(&twtxt) {
@@ -127,8 +130,8 @@ pub fn mention_to_nickname(line: &str) -> Option<String> {
     Some(mention_split[0].into())
 }
 
-/// Parses out `#tags` from each status, returning a `std::collections::BTreeMap<String, String>`
-/// with the timestamp as the key, and the tag as the status.
+/// Parses out `#tags` from each tweet, returning a `std::collections::BTreeMap<String, String>`
+/// with the timestamp as the key, and the tag as the value.
 pub fn tags(twtxt: &str) -> Option<BTreeMap<String, String>> {
     let statuses = if let Some(val) = statuses(&twtxt) {
         val

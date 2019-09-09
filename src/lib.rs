@@ -10,7 +10,7 @@ pub mod parse;
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
 pub type TweetMap = std::collections::BTreeMap<String, Tweet>;
 
-/// Holds statuses and metadata from a single `twtxt.txt` file.
+/// Holds tweets and metadata from a single `twtxt.txt` file.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Twtxt {
     nickname: String,
@@ -83,7 +83,7 @@ impl Twtxt {
     }
 }
 
-/// Holds a single status.
+/// Holds a single tweet.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Tweet {
     timestamp: String,
@@ -103,14 +103,14 @@ impl Tweet {
         &self.body
     }
 
-    /// Any mentions within the body of the status are parsed out
-    /// and retrievable through this method.
+    /// Any mentions within the body of the tweet have been parsed out
+    /// and are retrievable through this method.
     pub fn mentions(&self) -> Vec<String> {
         self.mentions.clone()
     }
 
-    /// Any tags within the body of the status are parsed out
-    /// and retrievable through this method.
+    /// Any tags within the body of the tweet have been parsed out
+    /// and are retrievable through this method.
     pub fn tags(&self) -> Vec<String> {
         self.tags.clone()
     }
