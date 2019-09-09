@@ -3,6 +3,18 @@ name = "rustwtxt"
 version = "0.1.0"
 authors = ["Ben Morrison <ben@gbmor.dev>"]
 edition = "2018"
+description = "Library that makes working with twtxt.txt files easier."
+documentation = "https://docs.rs/rustwtxt"
+repository = "https://github.com/gbmor/rustwtxt"
+readme = "README.md"
+keywords = ["twtxt", "microblogging", "microblog", "tweet"]
+categories = ["parsing", "text-processing", "web-programming"]
+license = "ISC"
+
+[badges]
+travis-ci = { repository = "gbmor/rustwtxt", branch = "master" }
+codecov = { repository = "gbmor/rustwtxt", branch = "master", service = "github" }
+maintenance = { status = "experimental" }
 
 [dependencies]
 regex = "1"
