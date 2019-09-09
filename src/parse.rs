@@ -95,6 +95,18 @@ mod tests {
     const TEST_URL: &str = "https://gbmor.dev/twtxt.txt";
 
     #[test]
+    #[should_panic]
+    fn bad_regex() {
+        metadata("SOME DATA", "<#*#@(&$(%)@$)>").unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn no_matches() {
+        metadata("SOME = DATA", "nick").unwrap();
+    }
+
+    #[test]
     fn get_mentions() {
         let twtxt = crate::pull_twtxt(TEST_URL).unwrap();
         let mention_map = mentions(&twtxt);
