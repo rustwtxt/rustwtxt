@@ -108,7 +108,7 @@ pub fn mentions(twtxt: &str) -> Option<BTreeMap<String, String>> {
 /// # use rustwtxt;
 /// # use rustwtxt::parse;
 /// let status = "2019.09.09\tHey there, @<nickname https://example.com/twtxt.txt!>";
-/// let mention = parse::mention_to_nickname(status);
+/// let mention = parse::mention_to_nickname(status).unwrap();
 /// assert_eq!(mention, "nickname");
 /// ```
 pub fn mention_to_nickname(line: &str) -> Option<String> {
