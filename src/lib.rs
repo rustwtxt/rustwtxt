@@ -3,6 +3,7 @@
 use std::collections::BTreeMap;
 
 use http_req::request;
+use regex::Regex;
 
 pub mod parse;
 
@@ -16,6 +17,42 @@ struct Twtxt {
     tweets: BTreeMap<String, Tweet>,
 }
 
+impl Twtxt {
+    fn new(url: &str) -> Option<Self> {
+        let twtxt = if let Ok(val) = pull_twtxt(&url) {
+            val
+        } else {
+            return None;
+        };
+        let url = if let Ok(val) = parse::metadata(&twtxt, "url") {
+            val.to_owned()
+        } else {
+            return None;
+        };
+        let nickname = if let Ok(val) = parse::metadata(&twtxt, "nick") {
+            val.to_owned()
+        } else {
+            return None;
+        };
+
+        let mut tweets = BTreeMap::new();
+        twtxt
+            .split("\n")
+            .collect::<Vec<&str>>()
+            .iter()
+            .for_each(|line| {
+                let tweet = Tweet::new(line);
+                tweets.insert(tweet.timestamp.clone(), tweet);
+            });
+
+        Some(Twtxt {
+            nickname,
+            url,
+            tweets,
+        })
+    }
+}
+
 /// Holds a single status.
 #[derive(Debug, Clone, Eq, PartialEq)]
 struct Tweet {
@@ -23,6 +60,41 @@ struct Tweet {
     body: String,
     mentions: Vec<String>,
     tags: Vec<String>,
+}
+
+impl Tweet {
+    fn new(tweet: &str) -> Self {
+        let split = tweet.split("\t").collect::<Vec<&str>>();
+        let timestamp = split[0].to_string();
+        let body = split[1].to_string();
+
+        let mentions_regex = Regex::new(r"[@<].*[>]+").unwrap();
+        let tags_regex = Regex::new(r"(^|\s)#[^\s]+").unwrap();
+
+        let mentions = mentions_regex
+            .find_iter(&body)
+            .map(|ding| ding.as_str().to_string())
+            .collect::<Vec<String>>();
+
+        let tags = tags_regex
+            .find_iter(&body)
+            .map(|ding| {
+                let tmp = ding.as_str();
+                let tmp = tmp.split(" ").collect::<Vec<&str>>();
+                if tmp[0] == "" && tmp[1] != "" {
+                    return tmp[1].to_string();
+                }
+                tmp[0].to_string()
+            })
+            .collect::<Vec<String>>();
+
+        Tweet {
+            timestamp,
+            body,
+            mentions,
+            tags,
+        }
+    }
 }
 
 /// Pulls the target twtxt.txt file from the specified URL.
