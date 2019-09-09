@@ -5,4 +5,5 @@ authors = ["Ben Morrison <ben@gbmor.dev>"]
 edition = "2018"
 
 [dependencies]
+regex = "1"
 reqwest = "0.9"
