@@ -1,10 +1,29 @@
 #![allow(dead_code)]
 
+use std::collections::BTreeMap;
+
 use http_req::request;
 
 pub mod parse;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+/// Holds statuses and metadata from a single `twtxt.txt` file.
+#[derive(Debug, Clone, Eq, PartialEq)]
+struct Twtxt {
+    nickname: String,
+    url: String,
+    tweets: BTreeMap<String, Tweet>,
+}
+
+/// Holds a single status.
+#[derive(Debug, Clone, Eq, PartialEq)]
+struct Tweet {
+    timestamp: String,
+    body: String,
+    mentions: Vec<String>,
+    tags: Vec<String>,
+}
 
 /// Pulls the target twtxt.txt file from the specified URL.
 ///
