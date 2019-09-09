@@ -2,6 +2,8 @@ use std::collections::BTreeMap;
 
 use regex::Regex;
 
+type StringErr<'a, T> = std::result::Result<T, &'a str>;
+
 /// This parses out the specified information in the `== Metadata ==` section of
 /// a given `twtxt.txt` file.
 ///
@@ -12,9 +14,9 @@ use regex::Regex;
 /// let twtxt = pull_twtxt("https://example.org/twtxt.txt").unwrap();
 /// let out = parse::metadata(&twtxt, "nick");
 /// ```
-pub fn metadata(twtxt: &str, keyword: &str) -> crate::Result<String> {
+pub fn metadata<'a, 'b>(twtxt: &'a str, keyword: &'b str) -> StringErr<'a, &'a str> {
     if !twtxt.contains("== Metadata ==") || !twtxt.contains(keyword) {
-        return Ok(String::new());
+        return Err("File contains no metadata section, or the keyword is missing");
     }
 
     let regex_string = format!("{} = (.*)", keyword);
@@ -22,22 +24,22 @@ pub fn metadata(twtxt: &str, keyword: &str) -> crate::Result<String> {
     let regex = if let Ok(val) = Regex::new(&regex_string) {
         val
     } else {
-        return Ok(String::new());
+        return Err("No Keyword Matches");
     };
 
     let matched = if let Some(val) = regex.captures(twtxt) {
         val
     } else {
-        return Ok(String::new());
+        return Err("No Keyword Matches");
     };
 
-    let keyword = if let Some(val) = matched.get(1) {
+    let keyword_match = if let Some(val) = matched.get(1) {
         val.as_str()
     } else {
-        ""
+        return Err("Keyword Matched Out of Bounds");
     };
 
-    Ok(keyword.to_owned())
+    Ok(keyword_match)
 }
 
 /// Pull the individual statuses from a remote `twtxt.txt` file into
@@ -103,7 +105,7 @@ mod tests {
     fn get_username() {
         let res = crate::pull_twtxt(TEST_URL).unwrap();
         let user = metadata(&res, "nick").unwrap();
-        assert_eq!("gbmor", &user);
+        assert_eq!("gbmor", user);
     }
 
     // This passes `cargo test`, but `cargo tarpaulin` segfaults
@@ -112,7 +114,7 @@ mod tests {
     fn get_url() {
         let res = crate::pull_twtxt(TEST_URL).unwrap();
         let url = metadata(&res, "url").unwrap();
-        assert_eq!(TEST_URL, &url);
+        assert_eq!(TEST_URL, url);
     }
 
     #[test]
@@ -122,9 +124,9 @@ mod tests {
         assert!(res.len() > 1);
     }
     #[test]
+    #[should_panic]
     fn parse_bad_twtxt() {
-        let rhs = metadata("SOMETHING GOES HERE", "url").unwrap();
-        assert_eq!(String::new(), rhs);
+        metadata("SOMETHING GOES HERE", "url").unwrap();
     }
 
     #[test]
