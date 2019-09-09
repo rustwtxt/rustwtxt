@@ -8,22 +8,28 @@ use regex::Regex;
 pub mod parse;
 
 type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+pub type TweetMap = std::collections::BTreeMap<String, Tweet>;
 
 /// Holds statuses and metadata from a single `twtxt.txt` file.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Twtxt {
     nickname: String,
     url: String,
-    tweets: BTreeMap<String, Tweet>,
+    tweets: TweetMap,
 }
 
 impl Twtxt {
+    /// Returns the nickname associated with the `twtxt.txt` file.
     pub fn nick<'a>(&'a self) -> &'a str {
         &self.nickname
     }
+
+    /// Returns the URL associated with the `twtxt.txt` file.
     pub fn url<'a>(&'a self) -> &'a str {
         &self.url
     }
+
+    /// Returns a specific tweet by the timestamp key.
     pub fn tweet(&self, datestamp: &str) -> Option<&Tweet> {
         if self.tweets.contains_key(datestamp) {
             Some(&self.tweets[datestamp])
@@ -31,10 +37,15 @@ impl Twtxt {
             None
         }
     }
-    pub fn tweets(&self) -> &BTreeMap<String, Tweet> {
+
+    /// Returns all tweets as a `TweetMap`, a thin wrapper around a `BTreeMap`.
+    /// The tweets will be date-sorted.
+    pub fn tweets(&self) -> &TweetMap {
         &self.tweets
     }
-    pub fn from(url: &str) -> Option<Self> {
+
+    /// Parse a remote `twtxt.txt` file into a `Twtxt` structure.
+    pub fn from(url: &str) -> Option<Twtxt> {
         let twtxt = if let Ok(val) = pull_twtxt(&url) {
             val
         } else {
@@ -82,19 +93,31 @@ pub struct Tweet {
 }
 
 impl Tweet {
+    /// Returns the timestamp for a given tweet.
     pub fn timestamp<'a>(&'a self) -> &'a str {
         &self.timestamp
     }
+
+    /// Returns the body of the tweet.
     pub fn body<'a>(&'a self) -> &'a str {
         &self.body
     }
+
+    /// Any mentions within the body of the status are parsed out
+    /// and retrievable through this method.
     pub fn mentions(&self) -> Vec<String> {
         self.mentions.clone()
     }
+
+    /// Any tags within the body of the status are parsed out
+    /// and retrievable through this method.
     pub fn tags(&self) -> Vec<String> {
         self.tags.clone()
     }
-    pub fn from_str(tweet: &str) -> Self {
+
+    /// Takes a properly-formatted `twtxt` tweet and parses it
+    /// into a `Tweet` structure.
+    pub fn from_str(tweet: &str) -> Tweet {
         let split = tweet.split("\t").collect::<Vec<&str>>();
         let timestamp = split[0].to_string();
         let body = split[1].to_string();
