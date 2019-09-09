@@ -2,33 +2,42 @@ use std::collections::BTreeMap;
 
 use regex::Regex;
 
-/// This parses out the information in the "== Metadata ==" section of
+/// This parses out the specified information in the `== Metadata ==` section of
 /// a given `twtxt.txt` file.
-/// You'll have to play with the trim offset here. Often there will be
-/// unprintable characters, such as newlines, appended despite the output
-/// being `trim()`-ed before return.
 ///
 /// # Examples
 /// ```
 /// # use rustwtxt::*;
 /// # use rustwtxt::parse;
 /// let twtxt = pull_twtxt("https://example.org/twtxt.txt").unwrap();
-/// let out = parse::metadata(&twtxt, "nick", 1);
+/// let out = parse::metadata(&twtxt, "nick");
 /// ```
-pub fn metadata(twtxt: &str, keyword: &str, trim: usize) -> String {
+pub fn metadata(twtxt: &str, keyword: &str) -> crate::Result<String> {
     if !twtxt.contains("== Metadata ==") || !twtxt.contains(keyword) {
-        return String::new();
+        return Ok(String::new());
     }
 
-    let split_at_keyword = twtxt.split(keyword).collect::<Vec<&str>>();
-    let rhs_of_keyword = split_at_keyword[1];
-    let split_at_equals = rhs_of_keyword.split("=").collect::<Vec<&str>>();
-    let rhs_of_equals = split_at_equals[1];
-    let split_at_space = rhs_of_equals.split(" ").collect::<Vec<&str>>();
-    let word_untrimmed = split_at_space[1];
-    let word_len = word_untrimmed.len();
-    let word = word_untrimmed[..word_len - trim].to_string();
-    word.trim().into()
+    let regex_string = format!("{} = (.*)", keyword);
+
+    let regex = if let Ok(val) = Regex::new(&regex_string) {
+        val
+    } else {
+        return Ok(String::new());
+    };
+
+    let matched = if let Some(val) = regex.captures(twtxt) {
+        val
+    } else {
+        return Ok(String::new());
+    };
+
+    let keyword = if let Some(val) = matched.get(1) {
+        val.as_str()
+    } else {
+        ""
+    };
+
+    Ok(keyword.to_owned())
 }
 
 /// Pull the individual statuses from a remote `twtxt.txt` file into
@@ -93,7 +102,7 @@ mod tests {
     #[test]
     fn get_username() {
         let res = crate::pull_twtxt(TEST_URL).unwrap();
-        let user = metadata(&res, "nick", 1);
+        let user = metadata(&res, "nick").unwrap();
         assert_eq!("gbmor", &user);
     }
 
@@ -102,7 +111,7 @@ mod tests {
     #[test]
     fn get_url() {
         let res = crate::pull_twtxt(TEST_URL).unwrap();
-        let url = metadata(&res, "url", 4);
+        let url = metadata(&res, "url").unwrap();
         assert_eq!(TEST_URL, &url);
     }
 
@@ -114,7 +123,7 @@ mod tests {
     }
     #[test]
     fn parse_bad_twtxt() {
-        let rhs = metadata("SOMETHING GOES HERE", "url", 0);
+        let rhs = metadata("SOMETHING GOES HERE", "url").unwrap();
         assert_eq!(String::new(), rhs);
     }
 
