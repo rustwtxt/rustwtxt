@@ -85,6 +85,38 @@ pub fn mentions(twtxt: &str) -> BTreeMap<String, String> {
         let mention = out[2..out.len() - 1].to_string();
         map.insert(k.to_string(), mention);
     });
+
+    map
+}
+
+pub fn tags(twtxt: &str) -> BTreeMap<String, String> {
+    let statuses = statuses(&twtxt);
+    let mut map = BTreeMap::new();
+    statuses.iter().for_each(|(k, v)| {
+        if !v.contains("#") {
+            return;
+        }
+
+        let regex = Regex::new(r"(^|\s)?[#].*").unwrap();
+        let tag = if let Some(val) = regex.captures(v) {
+            match val.get(0) {
+                Some(n) => n.as_str(),
+                _ => return,
+            }
+        } else {
+            return;
+        };
+
+        let tag = tag.split(" ").collect::<Vec<&str>>();
+        let tag = if tag.len() > 1 {
+            tag[1].to_string()
+        } else {
+            tag[0].to_string()
+        };
+
+        map.insert(k.to_string(), tag.into());
+    });
+
     map
 }
 
@@ -93,6 +125,18 @@ mod tests {
     use super::*;
 
     const TEST_URL: &str = "https://gbmor.dev/twtxt.txt";
+
+    #[test]
+    fn get_tags() {
+        let tag_map = tags("test\t#test");
+        assert!("#test" == &tag_map["test"]);
+
+        let tag_map = tags("test\tsome other #test here");
+        assert!("#test" == &tag_map["test"]);
+
+        let tag_map = tags("test\tsome other #test");
+        assert!("#test" == &tag_map["test"]);
+    }
 
     #[test]
     #[should_panic]
