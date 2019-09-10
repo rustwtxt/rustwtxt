@@ -40,7 +40,10 @@ fn main() {
     eprintln!("{:#?}", args);
 
     match args.subcommand() {
-        ("init", _args) => conf::init(),
+        ("init", _args) => {
+            eprintln!("{:#?}", _args);
+            conf::init();
+        }
         _ => return,
     }
 }
