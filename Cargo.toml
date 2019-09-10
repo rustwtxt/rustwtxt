@@ -10,6 +10,7 @@ readme = "README.md"
 keywords = ["twtxt", "microblogging", "microblog", "tweet"]
 categories = ["parsing", "text-processing", "web-programming"]
 license = "ISC"
+default-run = "rustwtxt"
 
 [badges]
 travis-ci = { repository = "gbmor/rustwtxt", branch = "master" }
