@@ -5,15 +5,15 @@ authors = ["Ben Morrison <ben@gbmor.dev>"]
 edition = "2018"
 description = "Library that makes working with twtxt.txt files easier."
 documentation = "https://docs.rs/rustwtxt"
-repository = "https://github.com/gbmor/rustwtxt"
+repository = "https://github.com/rustwtxt/rustwtxt"
 readme = "README.md"
 keywords = ["twtxt", "microblogging", "microblog", "tweet"]
 categories = ["parsing", "text-processing", "web-programming"]
 license = "ISC"
 
 [badges]
-travis-ci = { repository = "gbmor/rustwtxt", branch = "master" }
-codecov = { repository = "gbmor/rustwtxt", branch = "master", service = "github" }
+travis-ci = { repository = "rustwtxt/rustwtxt", branch = "master" }
+codecov = { repository = "rustwtxt/rustwtxt", branch = "master", service = "github" }
 maintenance = { status = "experimental" }
 
 [dependencies]
@@ -23,3 +23,27 @@ regex = "1"
 version = "0.5"
 default-features=false
 features=["rust-tls"]
+
+[profile.release]
+opt-level = 3
+lto = true
+debug = false
+rpath = false
+debug-assertions = false
+overflow-checks = false
+
+[profile.dev]
+opt-level = 0
+lto = false
+debug = true
+rpath = false
+debug-assertions = true
+overflow-checks = true
+
+[profile.bench]
+opt-level = 3
+lto = true
+debug = false
+debug-assertions = false
+rpath = false
+overflow-checks = false

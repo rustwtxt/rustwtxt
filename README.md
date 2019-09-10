@@ -1,4 +1,4 @@
-# rustwtxt &nbsp; [![Build Status](https://travis-ci.com/gbmor/rustwtxt.svg?branch=master)](https://travis-ci.com/gbmor/rustwtxt) [![codecov](https://codecov.io/gh/gbmor/rustwtxt/branch/master/graph/badge.svg?token=4DfKP7oHRQ)](https://codecov.io/gh/gbmor/rustwtxt) [![Documentation](https://img.shields.io/badge/docs.rs-%E2%9C%93-brightgreen)](https://docs.rs/rustwtxt)
+# rustwtxt &nbsp; [![Build Status](https://travis-ci.com/rustwtxt/rustwtxt.svg?branch=master)](https://travis-ci.com/rustwtxt/rustwtxt) [![codecov](https://codecov.io/gh/rustwtxt/rustwtxt/branch/master/graph/badge.svg?token=4DfKP7oHRQ)](https://codecov.io/gh/rustwtxt/rustwtxt) [![Documentation](https://img.shields.io/badge/docs.rs-%E2%9C%93-brightgreen)](https://docs.rs/rustwtxt)
 
 A library that makes it easier to interact with `twtxt` status files.
 Feel free to help hack on it.
