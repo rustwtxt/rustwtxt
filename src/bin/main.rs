@@ -18,9 +18,23 @@ fn main() {
             clap::Arg::with_name("config")
                 .short("c")
                 .long("config")
-                .value_name("CONFIG_FILE")
+                .value_name("FILE")
                 .help("Alternate config file to pass to rustwtxt.")
                 .takes_value(true),
+        )
+        .arg(
+            clap::Arg::with_name("follow")
+                .short("f")
+                .long("follow")
+                .value_name("URL")
+                .help("URL of a user's twtxt.txt file you wish to follow."),
+        )
+        .arg(
+            clap::Arg::with_name("unfollow")
+                .short("u")
+                .long("unfollow")
+                .value_name("NICK")
+                .help("Nick of the user you wish to stop following."),
         )
         .subcommand(
             clap::SubCommand::with_name("init").about("Initialization wizard for new installs."),
@@ -33,8 +47,6 @@ fn main() {
             clap::SubCommand::with_name("tweet")
                 .about("Opens your preferred editor to compose a new tweet."),
         )
-        .subcommand(clap::SubCommand::with_name("follow").about("Follow a given user."))
-        .subcommand(clap::SubCommand::with_name("unfollow").about("Stop following a given user."))
         .get_matches();
 
     eprintln!("{:#?}", args);
