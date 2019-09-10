@@ -221,6 +221,7 @@ mod tests {
         metadata("SOME = DATA", "nick").unwrap();
     }
 
+    #[ignore]
     #[test]
     fn get_mentions() {
         let twtxt = crate::pull_twtxt(TEST_URL).unwrap();
@@ -244,6 +245,7 @@ mod tests {
         assert_eq!(TEST_URL, url);
     }
 
+    #[ignore]
     #[test]
     fn get_status_map() {
         let twtxt = crate::pull_twtxt(TEST_URL).unwrap();

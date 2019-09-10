@@ -201,6 +201,7 @@ mod tests {
 
     const TEST_URL: &str = "https://gbmor.dev/twtxt.txt";
 
+    #[ignore]
     #[test]
     fn the_structs() {
         let twtxt = Twtxt::from(TEST_URL).unwrap();
@@ -220,6 +221,7 @@ mod tests {
         Twtxt::from("https://example.com/twtxt.txt").unwrap();
     }
 
+    #[ignore]
     #[test]
     fn make_twtxt() {
         let rhs = Twtxt::from(TEST_URL).unwrap();
