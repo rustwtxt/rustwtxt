@@ -50,6 +50,7 @@ overflow-checks = false
 
 [dependencies]
 clap = "2.33"
+lazy_static = "1.4"
 regex = "1"
 
 [dependencies.http_req]
