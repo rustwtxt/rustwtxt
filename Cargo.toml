@@ -16,7 +16,40 @@ travis-ci = { repository = "gbmor/rustwtxt", branch = "master" }
 codecov = { repository = "gbmor/rustwtxt", branch = "master", service = "github" }
 maintenance = { status = "experimental" }
 
+[lib]
+name = "rustwtxt"
+path = "src/lib.rs"
+
+[[bin]]
+name = "rustwtxt"
+path = "src/bin/main.rs"
+
+[profile.release]
+opt-level = 3
+lto = true
+debug = false
+rpath = false
+debug-assertions = false
+overflow-checks = false
+
+[profile.dev]
+opt-level = 0
+lto = false
+debug = true
+rpath = false
+debug-assertions = true
+overflow-checks = true
+
+[profile.bench]
+opt-level = 3
+lto = true
+debug = false
+debug-assertions = false
+rpath = false
+overflow-checks = false
+
 [dependencies]
+clap = "2.33"
 regex = "1"
 
 [dependencies.http_req]
