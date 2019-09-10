@@ -2,12 +2,8 @@
 // rustwtxt - Copyright (c) 2019 Ben Morrison (gbmor)
 // See LICENSE file for detailed license information.
 //
-#[macro_use]
-extern crate lazy_static;
 
 use clap;
-
-mod conf;
 
 fn main() {
     let args = clap::App::new("rustwtxt")
@@ -56,6 +52,22 @@ fn main() {
             eprintln!("{:#?}", _args);
             conf::init();
         }
-        _ => return,
+        _ => {}
+    }
+
+    conf::init();
+}
+
+mod conf {
+    use lazy_static::lazy_static;
+
+    use std::collections::HashMap;
+
+    lazy_static! {
+        pub static ref DATA: HashMap<String, String> = HashMap::new();
+    }
+
+    pub fn init() {
+        println!("TEST");
     }
 }
