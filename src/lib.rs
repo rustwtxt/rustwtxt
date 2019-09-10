@@ -1,3 +1,8 @@
+//! # rustwtxt
+//!
+//! This is a library intended to make working with `twtxt` timelines
+//! a bit easier.
+
 #![allow(dead_code)]
 
 use std::collections::BTreeMap;
@@ -51,11 +56,9 @@ impl Twtxt {
         } else {
             return None;
         };
-        let url = if let Ok(val) = parse::metadata(&twtxt, "url") {
-            val.to_owned()
-        } else {
-            return None;
-        };
+
+        let url = url.to_owned();
+
         let nickname = if let Ok(val) = parse::metadata(&twtxt, "nick") {
             val.to_owned()
         } else {
