@@ -7,9 +7,7 @@ extern crate lazy_static;
 
 use clap;
 
-lazy_static! {
-    static ref CONFIG: &'static str = "";
-}
+mod conf;
 
 fn main() {
     let args = clap::App::new("rustwtxt")
@@ -40,4 +38,9 @@ fn main() {
         .get_matches();
 
     eprintln!("{:#?}", args);
+
+    match args.subcommand() {
+        ("init", _args) => conf::init(),
+        _ => return,
+    }
 }
