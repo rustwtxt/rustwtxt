@@ -71,7 +71,7 @@ impl Twtxt {
             .collect::<Vec<&str>>()
             .iter()
             .for_each(|line| {
-                if line.starts_with("#") || line == &"" {
+                if line.starts_with("#") || line == &"" || !line.contains("\t") {
                     return;
                 }
                 let tweet = Tweet::from_str(line);

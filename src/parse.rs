@@ -52,7 +52,7 @@ pub fn statuses(twtxt: &str) -> Option<BTreeMap<String, String>> {
     let mut map = BTreeMap::new();
     let lines = twtxt.split("\n").collect::<Vec<&str>>();
     lines.iter().for_each(|line| {
-        if line.starts_with("#") || line.len() < 1 {
+        if line.starts_with("#") || line.len() < 2 || !line.contains("\t") {
             return;
         }
 
@@ -93,7 +93,7 @@ pub fn mentions(twtxt: &str) -> Option<BTreeMap<String, String>> {
             return;
         };
 
-        let mention = out[2..out.len() - 1].to_string();
+        let mention = out.to_string();
         map.insert(k.to_string(), mention);
     });
 
