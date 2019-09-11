@@ -1,6 +1,6 @@
 [package]
 name = "rustwtxt"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Ben Morrison <ben@gbmor.dev>"]
 edition = "2018"
 description = "Library that makes working with twtxt.txt files easier."

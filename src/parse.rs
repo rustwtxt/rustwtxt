@@ -18,7 +18,7 @@ type StringErr<'a, T> = std::result::Result<T, &'a str>;
 /// let out = parse::metadata(&twtxt, "nick");
 /// ```
 pub fn metadata<'a, 'b>(twtxt: &'a str, keyword: &'b str) -> StringErr<'a, &'a str> {
-    if !twtxt.contains("== Metadata ==") || !twtxt.contains(keyword) {
+    if !twtxt.contains("== Metadata ==") && !twtxt.contains(keyword) {
         return Err("File contains no metadata section, or the keyword is missing");
     }
 
