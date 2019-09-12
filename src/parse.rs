@@ -5,7 +5,27 @@ use std::collections::BTreeMap;
 
 use regex::Regex;
 
-type StringErr<'a, T> = std::result::Result<T, &'a str>;
+type TwtxtErr<T> = std::result::Result<T, ErrorKind>;
+
+#[derive(Debug)]
+pub enum ErrorKind {
+    Metadata,
+    Keyword,
+    Regex,
+}
+
+impl std::fmt::Display for ErrorKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let kind = match self {
+            ErrorKind::Metadata => "Metadata",
+            ErrorKind::Keyword => "Keyword",
+            ErrorKind::Regex => "Regex",
+        };
+        write!(f, "{}", kind)
+    }
+}
+
+impl std::error::Error for ErrorKind {}
 
 /// This parses out the specified information in the `== Metadata ==` section of
 /// a given `twtxt.txt` file.
@@ -17,9 +37,9 @@ type StringErr<'a, T> = std::result::Result<T, &'a str>;
 /// let twtxt = rustwtxt::pull_twtxt("https://example.org/twtxt.txt").unwrap();
 /// let out = parse::metadata(&twtxt, "nick");
 /// ```
-pub fn metadata<'a, 'b>(twtxt: &'a str, keyword: &'b str) -> StringErr<'a, &'a str> {
+pub fn metadata(twtxt: &str, keyword: &str) -> TwtxtErr<String> {
     if !twtxt.contains("== Metadata ==") && !twtxt.contains(keyword) {
-        return Err("File contains no metadata section, or the keyword is missing");
+        return Err(ErrorKind::Metadata);
     }
 
     let regex_string = format!("{} = (.*)", keyword);
@@ -27,22 +47,22 @@ pub fn metadata<'a, 'b>(twtxt: &'a str, keyword: &'b str) -> StringErr<'a, &'a s
     let regex = if let Ok(val) = Regex::new(&regex_string) {
         val
     } else {
-        return Err("No Keyword Matches");
+        return Err(ErrorKind::Regex);
     };
 
     let matched = if let Some(val) = regex.captures(twtxt) {
         val
     } else {
-        return Err("No Keyword Matches");
+        return Err(ErrorKind::Keyword);
     };
 
     let keyword_match = if let Some(val) = matched.get(1) {
         val.as_str()
     } else {
-        return Err("Keyword Matched Out of Bounds");
+        return Err(ErrorKind::Keyword);
     };
 
-    Ok(keyword_match)
+    Ok(keyword_match.to_string())
 }
 
 /// Pull the individual tweets from a remote `twtxt.txt` file into
