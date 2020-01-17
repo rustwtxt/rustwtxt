@@ -3,8 +3,6 @@
 //! This is a library intended to make working with `twtxt` timelines
 //! a bit easier.
 
-#![allow(dead_code)]
-
 use std::collections::BTreeMap;
 use std::str::FromStr;
 
