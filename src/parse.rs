@@ -34,7 +34,13 @@ impl std::error::Error for ErrorKind {}
 /// ```
 /// # use rustwtxt;
 /// # use rustwtxt::parse;
-/// let twtxt = rustwtxt::pull_twtxt("https://example.org/twtxt.txt").unwrap();
+///
+/// let twtxt = if let Ok(val) = rustwtxt::pull_twtxt("https://example.org/twtxt.txt") {
+///     val
+/// } else {
+///     String::new()
+/// };
+///
 /// let out = parse::metadata(&twtxt, "nick");
 /// ```
 pub fn metadata(twtxt: &str, keyword: &str) -> TwtxtErr<String> {

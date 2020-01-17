@@ -7,8 +7,9 @@
 
 use std::collections::BTreeMap;
 
-use http_req::request;
+use failure::format_err;
 use regex::Regex;
+use ureq;
 
 pub mod parse;
 
@@ -166,10 +167,22 @@ impl Tweet {
 ///           };
 /// ```
 pub fn pull_twtxt(url: &str) -> Result<String> {
-    let mut buf = Vec::new();
-    request::get(&url, &mut buf)?;
-    let res = std::str::from_utf8(&buf)?.into();
-    Ok(res)
+    let resp = ureq::get(&url).timeout_connect(5000).call();
+    if resp.error() {
+        return Err(Box::new(failure::Error::compat(format_err!(
+            "{} :: {}",
+            resp.status(),
+            &url
+        ))));
+    }
+
+    if let Ok(val) = resp.into_string() {
+        return Ok(val);
+    }
+    Err(Box::new(failure::Error::compat(format_err!(
+        "{} :: Internal Error",
+        &url
+    ))))
 }
 
 /// Wrapper to apply a function to each line of a `twtxt.txt` file,
@@ -190,9 +203,8 @@ pub fn mutate(twtxt: &str, f: fn(&str) -> String) -> Vec<String> {
     twtxt
         .to_owned()
         .lines()
-        .map(|line| f(line).to_string())
+        .map(|line| f(line))
         .collect::<Vec<String>>()
-        .clone()
 }
 
 #[cfg(test)]
