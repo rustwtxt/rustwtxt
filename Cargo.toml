@@ -1,6 +1,6 @@
 [package]
 name = "rustwtxt"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Ben Morrison <ben@gbmor.dev>"]
 edition = "2018"
 description = "Library that makes working with twtxt.txt files easier."
@@ -22,7 +22,7 @@ regex = "1"
 ureq = "^0.11.3"
 
 [profile.release]
-opt-level = 3
+opt-level = 'z'
 lto = true
 debug = false
 rpath = false
