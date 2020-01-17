@@ -6,6 +6,7 @@
 #![allow(dead_code)]
 
 use std::collections::BTreeMap;
+use std::str::FromStr;
 
 use failure::format_err;
 use regex::Regex;
@@ -26,12 +27,12 @@ pub struct Twtxt {
 
 impl Twtxt {
     /// Returns the nickname associated with the `twtxt.txt` file.
-    pub fn nick<'a>(&'a self) -> &'a str {
+    pub fn nick(&self) -> &str {
         &self.nickname
     }
 
     /// Returns the URL associated with the `twtxt.txt` file.
-    pub fn url<'a>(&'a self) -> &'a str {
+    pub fn url(&self) -> &str {
         &self.url
     }
 
@@ -61,21 +62,25 @@ impl Twtxt {
         let url = url.to_owned();
 
         let nickname = if let Ok(val) = parse::metadata(&twtxt, "nick") {
-            val.to_owned()
+            val
         } else {
             return None;
         };
 
         let mut tweets = BTreeMap::new();
         twtxt
-            .split("\n")
+            .split('\n')
             .collect::<Vec<&str>>()
             .iter()
             .for_each(|line| {
-                if line.starts_with("#") || line == &"" || !line.contains("\t") {
+                if line.starts_with('#') || line == &"" || !line.contains('\t') {
                     return;
                 }
-                let tweet = Tweet::from_str(line);
+                let tweet = if let Ok(val) = Tweet::from_str(line) {
+                    val
+                } else {
+                    return;
+                };
                 tweets.insert(tweet.timestamp.clone(), tweet);
             });
 
@@ -98,12 +103,12 @@ pub struct Tweet {
 
 impl Tweet {
     /// Returns the timestamp for a given tweet.
-    pub fn timestamp<'a>(&'a self) -> &'a str {
+    pub fn timestamp(&self) -> &str {
         &self.timestamp
     }
 
     /// Returns the body of the tweet.
-    pub fn body<'a>(&'a self) -> &'a str {
+    pub fn body(&self) -> &str {
         &self.body
     }
 
@@ -118,16 +123,20 @@ impl Tweet {
     pub fn tags(&self) -> Vec<String> {
         self.tags.clone()
     }
+}
+
+impl std::str::FromStr for Tweet {
+    type Err = Box<dyn std::error::Error>;
 
     /// Takes a properly-formatted `twtxt` tweet and parses it
     /// into a `Tweet` structure.
-    pub fn from_str(tweet: &str) -> Tweet {
-        let split = tweet.split("\t").collect::<Vec<&str>>();
+    fn from_str(tweet: &str) -> Result<Tweet> {
+        let split = tweet.split('\t').collect::<Vec<&str>>();
         let timestamp = split[0].to_string();
         let body = split[1].to_string();
 
-        let mentions_regex = Regex::new(r"[@<].*[>]+").unwrap();
-        let tags_regex = Regex::new(r"(^|\s)#[^\s]+").unwrap();
+        let mentions_regex = Regex::new(r"[@<].*[>]+")?;
+        let tags_regex = Regex::new(r"(^|\s)#[^\s]+")?;
 
         let mentions = mentions_regex
             .find_iter(&body)
@@ -138,7 +147,7 @@ impl Tweet {
             .find_iter(&body)
             .map(|ding| {
                 let tmp = ding.as_str();
-                let tmp = tmp.split(" ").collect::<Vec<&str>>();
+                let tmp = tmp.split(' ').collect::<Vec<&str>>();
                 if tmp[0] == "" && tmp.len() > 1 {
                     return tmp[1].to_string();
                 }
@@ -146,12 +155,12 @@ impl Tweet {
             })
             .collect::<Vec<String>>();
 
-        Tweet {
+        Ok(Tweet {
             timestamp,
             body,
             mentions,
             tags,
-        }
+        })
     }
 }
 
@@ -223,7 +232,7 @@ mod tests {
         let (_, tweet) = twtxt.tweets().iter().next().unwrap();
         assert!(tweet.body().len() > 1);
         assert!(tweet.timestamp().len() > 1);
-        assert!(tweet.tags().len() < 1);
+        assert!(tweet.tags().is_empty());
     }
 
     #[test]
@@ -246,9 +255,6 @@ mod tests {
         assert!(rhs.tweets.len() > 1);
     }
 
-    // This is causing cargo-tarpaulin to segfault, but
-    // only in travis...
-    #[ignore]
     #[test]
     fn test_mutate() {
         let input = "test";

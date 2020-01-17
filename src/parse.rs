@@ -76,18 +76,18 @@ pub fn metadata(twtxt: &str, keyword: &str) -> TwtxtErr<String> {
 /// is the key while the status is the value.
 pub fn statuses(twtxt: &str) -> Option<BTreeMap<String, String>> {
     let mut map = BTreeMap::new();
-    let lines = twtxt.split("\n").collect::<Vec<&str>>();
+    let lines = twtxt.split('\n').collect::<Vec<&str>>();
     lines.iter().for_each(|line| {
-        if line.starts_with("#") || line.len() < 2 || !line.contains("\t") {
+        if line.starts_with('#') || line.len() < 2 || !line.contains('\t') {
             return;
         }
 
-        let status = line.split("\t").collect::<Vec<&str>>();
+        let status = line.split('\t').collect::<Vec<&str>>();
         let datestamp = status[0];
         map.insert(datestamp.into(), status[1].into());
     });
 
-    if map.len() == 0 {
+    if map.is_empty() {
         return None;
     }
     Some(map)
@@ -123,7 +123,7 @@ pub fn mentions(twtxt: &str) -> Option<BTreeMap<String, String>> {
         map.insert(k.to_string(), mention);
     });
 
-    if map.len() == 0 {
+    if map.is_empty() {
         return None;
     }
     Some(map)
@@ -152,7 +152,7 @@ pub fn mention_to_nickname(line: &str) -> Option<String> {
     };
 
     let mention_trimmed = mention[2..mention.len() - 1].to_string();
-    let mention_split = mention_trimmed.split(" ").collect::<Vec<&str>>();
+    let mention_split = mention_trimmed.split(' ').collect::<Vec<&str>>();
     Some(mention_split[0].into())
 }
 
@@ -166,7 +166,7 @@ pub fn tags(twtxt: &str) -> Option<BTreeMap<String, String>> {
     };
     let mut map = BTreeMap::new();
     statuses.iter().for_each(|(k, v)| {
-        if !v.contains("#") {
+        if !v.contains('#') {
             return;
         }
 
@@ -201,7 +201,7 @@ pub fn tags(twtxt: &str) -> Option<BTreeMap<String, String>> {
         map.insert(k.to_string(), tag_group[..tag_group.len() - 1].to_string());
     });
 
-    if map.len() == 0 {
+    if map.is_empty() {
         return None;
     }
     Some(map)
@@ -261,8 +261,6 @@ mod tests {
         assert_eq!("gbmor", user);
     }
 
-    // This passes `cargo test`, but `cargo tarpaulin` segfaults
-    #[ignore]
     #[test]
     fn get_url() {
         let res = crate::pull_twtxt(TEST_URL).unwrap();
