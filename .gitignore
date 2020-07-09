@@ -1,4 +1,3 @@
 /target
 **/*.rs.bk
-cobertura.xml
-Cargo.lock
+rustweet.yaml

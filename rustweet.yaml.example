@@ -1,0 +1,13 @@
+## Your nickname
+nick: "rustweeter"
+
+## Path to your twtxt.txt file
+path: "/home/rustweeter/public_html/twtxt.txt"
+
+## Your publicly-accessible twtxt.txt file URL
+url: "https://example.com/twtxt.txt"
+
+## Array of people you follow. Username, space, URL.
+follow:
+  - twtxt http://example.com/twtxt.txt
+  - twtxt2 http://example.com/twtxt.txt
