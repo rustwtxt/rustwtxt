@@ -1,0 +1,11 @@
+image: alpine/edge
+packages:
+  - rust
+  - cargo
+sources:
+  - https://git.sr.ht/~gbmor/rustwtxt
+tasks:
+  - build: |
+      cd rustwtxt
+      cargo check
+      cargo test
