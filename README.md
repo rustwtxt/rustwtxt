@@ -6,10 +6,10 @@
 ## Contributions
 
 Please mail patches to:
-  * [~gbmor/rustwtxt@lists.sr.ht](mailto:~gbmor/rustwtxt@lists.sr.ht)
+* [~gbmor/rustwtxt@lists.sr.ht](mailto:~gbmor/rustwtxt@lists.sr.ht)
 
 Tickets / issues:
-  * [https://todo.sr.ht/~gbmor/rustwtxt](https://todo.sr.ht/~gbmor/rustwtxt)
+* [https://todo.sr.ht/~gbmor/rustwtxt](https://todo.sr.ht/~gbmor/rustwtxt)
 
 ## Notes
 * `twtxt` is a decentralized microblogging platform based on text files. 
