@@ -6,12 +6,12 @@ rust:
 os: 
   - linux
 
-dist: xenial
+dist: bionic
 
 before_script:
-    - cargo install cargo-tarpaulin
+    - bash <(curl https://raw.githubusercontent.com/xd009642/tarpaulin/master/travis-install.sh)
 
 script:
-    - cargo build --verbose
-    - cargo tarpaulin --out Xml --verbose
+    - cargo check
+    - cargo tarpaulin --out Xml
     - bash <(curl -s https://codecov.io/bash)
