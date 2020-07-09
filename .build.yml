@@ -2,6 +2,7 @@ image: alpine/edge
 packages:
   - rust
   - cargo
+  - openssl-dev
 sources:
   - https://git.sr.ht/~gbmor/rustwtxt
 tasks:
